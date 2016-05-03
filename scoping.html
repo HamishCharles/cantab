@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<script>
+	window.addEventListener('load', function(){
+		var elements = document.getElementsByTagName('button');
+		var n = elements.length;
+		for (var i = 0; i < n; i++) {
+			elements[i].addEventListener( 'click',
+
+				// function factory to return correct index not just last one
+				function (number) {
+
+						return function() {
+							console.log("This is element #" + number);
+						}
+
+					}(i+1) // execute function factory immediately to return function for click event
+								 // array is 0 indexed so add 1 
+
+				);
+			}
+		}
+	);
+</script>
+</head>
+<body>
+	<p><button>button one</button></p>
+	<p><button>button two</button></p>
+	<p><button>button three</button></p>
+	<p><button>button four</button></p>
+
+
+
+</body>
+</html>

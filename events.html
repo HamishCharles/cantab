@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+    <script>
+        (function() { // create a closure
+
+            // Create the canvas
+            var canvas = document.createElement('canvas');
+            var greenImg;
+            var ctx;
+            var mmid = false;
+
+            // Set up the canvas attributes
+            setUpCanvas();
+
+            // action once the dom and images are loaded
+            window.onload = function() {
+
+                // add the canvas to the document
+                document.body.appendChild(canvas);
+
+                // get the context
+                ctx = canvas.getContext('2d');
+
+                // add the images to the canvas and find the green img
+                processImages();
+
+                // add event listeners
+                canvas.addEventListener('mousemove', mouseHoverWait);
+                greenImg.addEventListener('click', greenClick);
+            }
+
+            /**
+             * [setUpCanvas - set the canvas attributes]
+             */
+            function setUpCanvas () {
+                canvas.width = 640;
+                canvas.height = 480;
+                canvas.style.position = "absolute";
+                canvas.style.border = "1px solid red";
+                canvas.style.margin = "8px"; // to match default body margin in chrome
+                canvas.style.top = 0;
+                canvas.style.left = 0;
+            }
+
+            /**
+             * [processImages - add all the images to the canvas and find the green image]
+             */
+            function processImages () {
+              var imgs = document.images;
+              for (var i = 0; i < imgs.length; i++) {
+                  addImageToCanvas(imgs[i]);
+                  // find the green image
+                  if(imgs[i].src.split('/').pop() === "green.png") {
+                      greenImg = imgs[i];
+                  }
+              }
+            }
+
+            /**
+             * [addImageToCanvas - add an image to the canvas]
+             * @param {image} img [and image from the document]
+             */
+            function addImageToCanvas (img) {
+              //img.crossOrigin = 'anonymous';
+              ctx.drawImage(img, 0, 0);
+              img.style.display = 'none';
+            }
+
+            /**
+             * [mouseHoverWait - wait for a set amount of time before calling hovering]
+             * @param  {event object} e [the event object]
+             */
+            function mouseHoverWait (e) {
+                if (mmid) window.clearTimeout(mmid);
+                mmid = window.setTimeout(hovering, 500, e);
+            }
+
+            /**
+             * [hovering - when the mouse is hovering then action it]
+             * @param  {event object} e [the event object]
+             */
+            function hovering (e) {
+                var p = ctx.getImageData(e.pageX, e.pageY, 1, 1).data;
+
+                var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+                var transparent = p[3] === 0;
+
+                if (transparent) {
+                    // send a click to the image as per spec
+                    greenImg.click();
+                }
+
+                // find all the h1 elements and hide them
+                var h1s = document.getElementsByTagName('h1');
+                for (var i = 0; i < h1s.length; i++) {
+                    h1s[i].style.display = "none";
+                }
+
+                // see if red or green are under cursor
+                switch (hex) {
+                    case '#33cd2f':
+                        h1s[0].style.display = "block";
+                        break;
+                    case '#ff0000':
+                        h1s[1].style.display = "block";
+                        break;
+                }
+            };
+
+            /**
+             * [rgbToHex - converts rgb to hex]
+             * @param  {integer} r [red]
+             * @param  {integer} g [green]
+             * @param  {integer} b [blue]
+             * @return {string}   [hex string]
+             */
+            function rgbToHex (r, g, b) {
+              if (r > 255 || g > 255 || b > 255)
+              throw "Invalid color component";
+              return ((r << 16) | (g << 8) | b).toString(16);
+            }
+
+            /**
+             * [greenClick - if the green.png img is clicked do something to show it]
+             */
+            function greenClick () {
+              alert('click event triggered on img for green.png');
+              console.log('** click event triggered on img for green.png **');
+            }
+
+        })();
+    </script>
+</head>
+<body>
+<div style="width : 640px;height:480px;position: relative">
+<h1 style="display: none;position : absolute;top:20px;right:20px;">Green</h1>
+<h1 style="display : none;position : absolute;bottom:20px;right:20px;">Red</h1>
+<img src="green.png" style = "position:absolute;top:0;left:0"/>
+<img src="red.png" style = "position:absolute;top:0;left:0"/>
+</div>
+</body>
+</html>
